@@ -1,0 +1,151 @@
+---
+title: "ggplot2_tutorial"
+output: 
+  md_document:
+    variant: markdown_github
+  html_document:
+    fig_caption: yes
+---
+
+
+# ggplot tutorial
+
+## What is ggplot?
+
+BLABLA TODO graphics grammar etc
+
+## Actually doing things -- first dive into ggplot2
+
+First step: install and import `ggplot2` (surprising, right)
+
+WHY TIDYVERSE TODO
+
+```{r install_lib}
+# library(ggplot2)
+library(tidyverse)
+```
+
+Second step: get data (and here you thought nothing could surprise you anymore)
+
+If you ever want to try something out, you should know that there are built-in datasets for you to test things on.
+
+```{r datasets}
+## see all datasets available
+# data()
+
+## load one of them
+data(iris)
+
+## take a look at what it looks like
+head(iris)
+
+```
+
+And now, for the actual plotting...
+```{r test0}
+ggplot()
+```
+
+Here we initialized the plot object. Basically, this tells R: hey, this is going to be a plot. Now we would like this plot to have something in it, and to add layers to a plot, we use "+", so let's try to add points:
+
+```{r test2}
+ggplot()+
+  geom_point(data=iris)
+```
+Oh no, an error! Fortunately, R tells you what is wrong: it requires an aesthetics object containing necessary information (here, x and y). [learning how to read errors thrown by R: very useful!]
+
+So here we said "Hey R, display points!" and R answered "Ok, where?"
+
+What are aesthetics? BLABLA TODO
+
+Let's indicate to R in which positions we want points and plot the lengths of petals depending on the lengths of sepals:
+```{r first_plot}
+ggplot()+
+  geom_histogram(aes(x=Sepal.Length, fill="sepal length", alpha = 0.5), data=iris)+
+  geom_histogram(aes(x=Petal.Length, fill="petal length", alpha=0.5), data=iris)+
+  facet_wrap(~Species)
+```
+```{r first_plot}
+ggplot()+
+  geom_point(aes(x=Sepal.Length, y=Petal.Length), data=iris)
+```
+ What if we also want, say, a smoothed curve for this data?
+
+
+```{r second_plot}
+ggplot()+
+  geom_point(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_smooth(data=iris, aes(x=Sepal.Length, y=Petal.Length))
+```
+
+Well this is a bit repetitive, isn't it? Does this mean that we will have to repeat the data, x and y values anytime we want to do something new with them?
+
+Well no! We can put everything only once, as an argument of the `ggplot()` function: anything that is written there will be put in common with all the other layers:
+
+```{r common_plot}
+ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_point()+
+  geom_smooth()
+
+## adding a new layer
+ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_point()+
+  geom_smooth()+
+  geom_rug()
+```
+
+Other information can be specified about the plot: color, size, shape, fill, transparency, ...
+
+```{r common_plot}
+ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_point(color="darkblue")+
+  geom_smooth(color="green")
+
+```
+
+If this information depends on the data, it should be specified in the aes:
+
+```{r common_plot}
+ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length, color=Species))+
+  geom_point()+
+  geom_smooth()
+
+```
+
+What?! No! I just wanted the points to be colored based on the species they belong to, not have a different regression for each species! No worries, we can do that too, just specify that information in a layer-specific aes:
+
+```{r common_plot}
+ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_point(aes(color=Species))+
+  geom_smooth(color="black")
+
+```
+
+```{r another_example_plot}
+ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_point(aes(color=Species, size=Petal.Width, alpha=0.8))+
+  geom_smooth(color="black", fill="yellow")+
+  facet_grid(~Species)
+
+```
+
+## Let's do some actual analysis
+
+
+YES the order matters:
+
+```{r actual_plot}
+ggplot(iris, aes(x=Species, y=Petal.Length, color=Species, fill=Species)) +
+  geom_boxplot(width = 0.6, alpha=0.5)+
+  geom_jitter(width=0.3, height=0)+
+  geom_violin(alpha = 0.5, fill="grey") 
+  # geom_boxplot(width = 0.6, alpha=0.5)
+
+
+ggplot(iris, aes(x=Species, y=Petal.Length, color=Species, fill=Species)) +
+  geom_jitter(width=0.1, alpha=0.5)+
+  geom_violin(alpha = 0.5, fill="grey", position = position_nudge(x=0.6))+
+  geom_boxplot(width = 0.3, alpha=0.5)+
+  coord_flip()
+
+```

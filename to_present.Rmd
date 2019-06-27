@@ -20,7 +20,7 @@ Based on "The Grammar of Graphics", book by Leland Wilkinson. Just like grammar 
 
 First step: install and import `ggplot2` (surprising, right)
 
-Note about tidyverse: WHY TIDYVERSE TODO
+Note about tidyverse --
 
 ```{r install_lib}
 # library(ggplot2)

@@ -1,0 +1,262 @@
+---
+title: "ggplot2_tutorial"
+output: 
+  html_document:
+    fig_caption: yes
+  md_document:
+    variant: markdown_github
+---
+```{r setup, cache = F}
+knitr::opts_chunk$set(error = TRUE)
+```
+
+## What is ggplot?
+
+Based on "The Grammar of Graphics", book by Leland Wilkinson. Just like grammar in language, a way to organize different elements of a plot so that it makes sense.
+
+## Actually doing things -- first dive into ggplot2
+
+### Setup
+
+First step: install and import `ggplot2` (surprising, right)
+
+Note about tidyverse: WHY TIDYVERSE TODO
+
+```{r install_lib}
+# library(ggplot2)
+library(tidyverse)
+```
+
+Second step: get data (and here you thought nothing could surprise you anymore)
+
+If you ever want to try something out, you should know that there are built-in datasets for you to test things on.
+
+```{r datasets}
+## see all datasets available
+# data()
+
+## load one of them
+## Since we're the flowers lab, let's go with iris (great computer)
+data(iris)
+
+## take a look at what it looks like
+head(iris)
+
+```
+
+About data: familiarize yourself with the data, make sure it is in the best format possible (eg CDI: bad). Explore wide format (bad) versus long format (better). Know where there are NAs that could raise errors when plotting, that kind of basic checks. Here two types of variables: numeric-continuous (all except Species) and categorical (Species). Notice how this dataset is half good (should be four columns: Type (Sepal or Petal), Measure (Length or Width), Value (numeric-continuous), Species) but we will not go into more details, and sometimes you just have to make do with what you have -- in the present case, laziness.
+
+```{r check_data}
+summary(iris)
+```
+
+### Layers
+
+And now, for the actual plotting...
+```{r test0}
+ggplot()
+```
+
+"no offense, but this is blank"
+
+Here we initialized the plot object. Basically, this tells R: hey, this is going to be a plot. Now we would like this plot to have something in it, and to add layers to a plot, we use "+", so let's try to add points from the dataset we chose:
+
+```{r test2}
+ggplot()+
+  geom_point(data=iris)
+```
+
+Oh no, an error! Fortunately, R tells you what is wrong: it requires an aesthetics object containing necessary information (here, x and y). [learning how to read errors thrown by R: very useful!]
+
+So here we said "Hey R, display points!" and R answered "Ok, where?"
+
+### Aesthetics - part 1
+
+What are aesthetics? They are a link between what ggplot should display based on the values of the data; it is a mapping between data and visual features. The most basic ones are the coordinates of things to plot!
+
+Let's indicate to R in which positions we want points and plot the lengths of petals depending on the lengths of sepals:
+
+```{r second_plot}
+ggplot()+
+  geom_point(aes(x=Sepal.Length, y=Petal.Length), data=iris)
+```
+ 
+### Default values
+ 
+What if we also want, say, a smoothed curve for this data?
+
+
+```{r third_plot}
+ggplot()+
+  geom_point(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_smooth(data=iris, aes(x=Sepal.Length, y=Petal.Length))
+```
+
+Well this is a bit repetitive, isn't it? Does this mean that we will have to repeat the data, x and y values anytime we want to do something new with them?
+
+Well no! We can put everything only once, as an argument of the `ggplot()` function: anything that is written there will be put in common with all the other layers. This can be considered as a default value for every new layer that is created:
+
+```{r common_plot}
+ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_point()+
+  geom_smooth()
+
+## adding new layers witht the same default
+ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_point()+
+  geom_smooth()+
+  geom_rug()+
+  geom_density2d()
+```
+
+### Aesthetics - part 2
+
+Other information can be specified about the plot: color, size, shape, fill, transparency, ...
+
+```{r color_plot}
+ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_point(color="violetred4")+
+  geom_smooth(color="lightcoral", fill="midnightblue")
+
+```
+
+
+See any R color cheatsheet, for example https://www.nceas.ucsb.edu/~frazier/RSpatialGuides/colorPaletteCheatsheet.pdf
+
+If this information depends on the data, it should be specified in the aes object:
+
+```{r color2_plot}
+ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length, color=Species))+
+  geom_point()+
+  geom_smooth()
+
+```
+
+What?! No! I just wanted the points to be colored based on the species they belong to, not to have a different curve for each species! No worries, we can do that too, we just have to specify that information in a layer-specific aes instead of having is as default:
+
+```{r color3_plot}
+ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_point(aes(color=Species))+
+  geom_smooth(color="black", fill="yellow")
+
+```
+
+### stats
+
+Building a new variable to plot based on existing data (usually descriptive statistics, such as mean, se...):
+
+```{r stat_plot}
+ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_point(aes(color=Species))+
+  stat_smooth(method=lm)+
+  stat_summary(fun.data = "mean_cl_boot")
+  
+```
+
+
+Hm ok... what is "mean_cl_boot" exactly?
+
+Learn how to use all the tools at your disposal! Either type `?mean_cl_boot` int the RStudio console or go to the Help tab on the bottom right panel of RStudio and search "mean_cl_boot", all the information should be there!
+
+### Coordinates
+
+"But I don't care about petal length under 4, that's way to too tiny. And those sepals over 7, ugh." Alright alright, let's fix it:
+
+```{r another_ex_plot}
+ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_point(aes(color=Species))+
+  coord_cartesian(xlim=c(4, 7), ylim=c(0,4))
+```
+
+Another example with our favorite plot:
+```{r another_example_plot}
+ggplot(data=iris, aes(x=Species, y=Petal.Length))+
+  geom_violin(aes(color=Species))
+```
+
+It's fine and all, but what we really wanted was to have the species on the y axis. Well why didn't you say so before? That's how you do it:
+
+```{r coord_flip}
+ggplot(data=iris, aes(x=Species, y=Petal.Length))+
+  coord_flip()+
+  geom_violin(aes(color=Species, fill=Species, alpha=0.5))
+  
+```
+
+You got it, `coord` will... change the coordinate system!
+
+### Facets
+
+You would like to split up your data by one or more variable and plot the subsets of data together, use facets!
+
+```{r another_plot}
+ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_point(aes(color=Species, size=Petal.Width, alpha=0.8))+
+  geom_smooth(color="black", fill="yellow")+
+  facet_grid(~Species)
+```
+
+This floral example not being the best there is, let's look at another example (with more than one categorical value -- basic ggplot example):
+
+```{r other_df}
+summary(mpg)
+?mpg
+ggplot(mpg, aes(cty, hwy, color=manufacturer)) + geom_point() +
+  facet_grid(fl ~ year)
+```
+
+### Scales
+
+Back to our flowers!
+
+```{r yetanother_plot}
+ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_point(aes(color=Species, size=Petal.Width, alpha=0.8))+
+  geom_smooth(color="black", fill="yellow")+
+  scale_x_reverse()
+
+```
+
+### Themes
+
+Those are the non-data components of the graph: fonts, background and so on.
+
+```{r yet2another_plot}
+ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_point(aes(color=Species, size=Petal.Width, alpha=0.8))+
+  geom_smooth(color="black", fill="yellow")+
+  theme_light()
+
+```
+
+Play with it a little bit -- try `theme_dark`, `theme_void`
+
+### Other comments
+
+You can put a plot in a variable and add a layer later on:
+
+```{r add_layer}
+p <- ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
+  geom_point(aes(color=Species, size=Petal.Width, alpha=0.8))+
+  geom_smooth(color="black", fill="yellow")
+p
+p + facet_grid(~Species)
+
+```
+
+You can retrieve the last plot you made and save it:
+
+```{r save}
+# will show the last plot again
+last_plot()
+
+# will save the last plot
+ggsave("here.png", width=10, height=10)
+```
+
+
+# In the end, lots of trials and errors (see https://twitter.com/accidental__aRt)
+
+# All the help you need: https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf and Google! :)
+
+## Your turn!

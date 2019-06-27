@@ -12,7 +12,7 @@ knitr::opts_chunk$set(error = TRUE)
 
 ## What is ggplot?
 
-BLABLA TODO graphics grammar etc
+Based on "The Grammar of Graphics", book by Leland Wilkinson. Just like grammar in language, a way to organize different elements of a plot so that it makes sense.
 
 ## Actually doing things -- first dive into ggplot2
 
@@ -50,7 +50,7 @@ About data: familiarize yourself with the data, make sure it is in the best form
 summary(iris)
 ```
 
-### Layers - part 1
+### Layers
 
 And now, for the actual plotting...
 ```{r test0}
@@ -72,7 +72,7 @@ So here we said "Hey R, display points!" and R answered "Ok, where?"
 
 ### Aesthetics - part 1
 
-What are aesthetics? BLABLA TODO
+What are aesthetics? They are a link between what ggplot should display based on the values of the data; it is a mapping between data and visual features. The most basic ones are the coordinates of things to plot!
 
 Let's indicate to R in which positions we want points and plot the lengths of petals depending on the lengths of sepals:
 
@@ -183,12 +183,11 @@ ggplot(data=iris, aes(x=Species, y=Petal.Length))+
   
 ```
 
-What coord are TODO
+You got it, `coord` will... change the coordinate system!
 
 ### Facets
 
-
-What facets are + better example TODO
+You would like to split up your data by one or more variable and plot the subsets of data together, use facets!
 
 ```{r another_plot}
 ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
@@ -210,8 +209,6 @@ ggplot(mpg, aes(cty, hwy, color=manufacturer)) + geom_point() +
 
 Back to our flowers!
 
-WHAT SCALES ARE TODO
-
 ```{r yetanother_plot}
 ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
   geom_point(aes(color=Species, size=Petal.Width, alpha=0.8))+
@@ -222,7 +219,7 @@ ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
 
 ### Themes
 
-WHAT THEMES ARE TODO
+Those are the non-data components of the graph: fonts, background and so on.
 
 ```{r yet2another_plot}
 ggplot(data=iris, aes(x=Sepal.Length, y=Petal.Length))+
@@ -257,17 +254,23 @@ last_plot()
 ggsave("here.png", width=10, height=10)
 ```
 
-## Let's do some actual analysis
 
-All the help you need:
-https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf and Google! :)
+# In the end, lots of trials and errors (see https://twitter.com/accidental__aRt)
+
+# All the help you need: https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf and Google! :)
+
+## Your turn!
+
 
 
 ```{r first_plot}
+
 ggplot()+
-  geom_histogram(aes(x=Sepal.Length, fill="sepal length", alpha = 0.5), data=iris)+
-  geom_histogram(aes(x=Petal.Length, fill="petal length", alpha=0.5), data=iris)+
-  facet_wrap(~Species)
+  geom_histogram(aes(x=Sepal.Length), fill="green", alpha = 0.5, data=iris)+
+  geom_histogram(aes(x=Petal.Length), fill="red", alpha=0.5, data=iris)+
+  facet_wrap(~Species)+
+  theme_dark()+
+  labs(x="Length of sepals (green), length of petals (red)", y="Number of flowers with these features")
 ```
 
 YES the order matters:
@@ -288,7 +291,8 @@ ggplot(iris, aes(x=Species, y=Petal.Length, color=Species, fill=Species)) +
   geom_jitter(width=0.1, alpha=0.5)+
   geom_violin(alpha = 0.5, fill="grey", position = position_nudge(x=0.6))+
   geom_boxplot(width = 0.3, alpha=0.5)+
-  coord_flip()
+  coord_flip()+
+  theme_classic()
 
 ```
 
@@ -296,7 +300,5 @@ ggplot(iris, aes(x=Species, y=Petal.Length, color=Species, fill=Species)) +
 ggplot(iris, aes(Sepal.Length, Petal.Length))+
  geom_point(aes(color=Sepal.Width))+
  geom_smooth(method="lm")+
- # coord_cartesian()+
- # scale_color_gradient()+
  theme_bw()
 ```
